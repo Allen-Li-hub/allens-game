@@ -1,33 +1,38 @@
- 
+##################################################
+# Run Mr Coxall's Super Linter against code base #
+##################################################
 
+---
+name: Mr Coxall's Super Linter
 
-> Open this page at [https://allen-li-hub.github.io/allens-game/](https://allen-li-hub.github.io/allens-game/)
+on: [push, pull_request]
 
-## Use as Extension
+jobs:
+  run-linters:
+    name: Mr Coxall's Super Linter
+    runs-on: ubuntu-latest
 
-This repository can be added as an **extension** in MakeCode.
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@main
 
-* open [https://arcade.makecode.com/](https://arcade.makecode.com/)
-* click on **New Project**
-* click on **Extensions** under the gearwheel menu
-* search for **https://github.com/allen-li-hub/allens-game** and import
+      # remove section if you do not have any htm, js or ts files!
+      - name: Prettify code
+        uses: Mr-Coxall/prettier_action@main
+        with:
+          # run Prettier and change code that needs fixing, before next section
+          prettier_options: --write **/*.{html,css,js,ts,jsx,tsx,json}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-## Edit this project ![Build status badge](https://github.com/allen-li-hub/allens-game/workflows/MakeCode/badge.svg)
-
-To edit this repository in MakeCode.
-
-* open [https://arcade.makecode.com/](https://arcade.makecode.com/)
-* click on **Import** then click on **Import URL**
-* paste **https://github.com/allen-li-hub/allens-game** and click import
-
-## Blocks preview
-
-This image shows the blocks code from the last commit in master.
-This image may take a few minutes to refresh.
-
-![A rendered view of the blocks](https://github.com/allen-li-hub/allens-game/raw/master/.github/makecode/blocks.png)
-
-#### Metadata (used for search, rendering)
-
-* for PXT/arcade
-<script src="https://makecode.com/gh-pages-embed.js"></script><script>makeCodeRender("{{ site.makecode.home_url }}", "{{ site.github.owner_name }}/{{ site.github.repository_name }}");</script>
+      - name: Run GitHub Super Linter
+        uses: github/super-linter@main
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          LINTER_RULES_PATH: /
+          VALIDATE_CLANG_FORMAT: false
+          VALIDATE_JAVASCRIPT_STANDARD: false
+          VALIDATE_PYTHON_FLAKE8: false
+          VALIDATE_GITLEAKS: false # for secrets detection
+          VALIDATE_JSCPD: false # for copy and paste detection
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
